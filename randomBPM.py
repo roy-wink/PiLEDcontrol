@@ -77,3 +77,6 @@ while not stopping:
     setLight(red, green, blue)
     
     time.sleep(wait_time)
+
+setLight(0, 0, 0)
+

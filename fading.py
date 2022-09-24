@@ -1,4 +1,5 @@
 # script to set a fading show, with depending speed
+# author: Roy Wink, sep 2022
 
 import re
 import threading
@@ -13,6 +14,7 @@ BLUE_PIN = 22
 debug = False
 
 # get speed (1 - 100)
+# todo: get try for instance and allow over 100 with confirm
 speed = 0
 while speed > 100 or speed <= 0:
     speed = float(input('Input the desired speed on a scale of 1 to 100:\n $ '))
@@ -40,24 +42,31 @@ def setLight(pin, color):
     pi.set_PWM_dutycycle(pin, color)
 
 def threadingFunc():
-    stop_arg = input('Give an input the kill fading\n $ ')
-    
+    stop_arg = input('\nGive an input to stop fading\n $ ')
+
+    # elevate variables
+    global step
+    global stopping
+
     # check for the hidden speed change
     expr = 'speed \d?\.?\d+'
     check = re.search(expr, stop_arg)
     if check:
-        global step
         speed = float(stop_arg.split(' ')[1])
         step = speed / 100
         print('speed adjusted')
-        
+
         # reset threading
         x = threading.Thread(target=threadingFunc)
         x.start()
-    
+
+    # check for quick termination
+    elif stop_arg == 'quick':
+        stopping = True
+        step = 10
+
     # else, just stop
     elif stop_arg != '':
-        global stopping
         stopping = True
         print('program will terminate after this loop')
 
@@ -74,7 +83,7 @@ setLight(BLUE_PIN, blue)
 x = threading.Thread(target=threadingFunc)
 x.start()
 
-# change to keyboard interupt
+# start fading loop; stop when stopping is raised
 while not stopping:
     # add green to red
     while green < 255:
@@ -105,3 +114,6 @@ while not stopping:
     while blue > 0:
         blue = updateColor(blue, -step)
         setLight(BLUE_PIN, blue)
+
+setLight(RED_PIN, 0)
+print('terminated')
