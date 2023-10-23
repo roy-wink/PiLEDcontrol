@@ -5,8 +5,8 @@ import schedule
 import time
 
 # PIGPIO SETTINGS -------------------------------------------------------------
-# import pigpio
-# pi = pigpio.pi()
+import pigpio
+pi = pigpio.pi()
 
 RED_PIN = 17
 GREEN_PIN = 27
